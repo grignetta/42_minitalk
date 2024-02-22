@@ -6,86 +6,93 @@
 /*   By: dpadenko <dpadenko@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 13:04:48 by dpadenko          #+#    #+#             */
-/*   Updated: 2024/02/08 13:52:56 by dpadenko         ###   ########.fr       */
+/*   Updated: 2024/02/22 09:48:57 by dpadenko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "client.h"
+
+volatile sig_atomic_t	g_confirmed;
+
+void	wait_for_confirmation(void)
+{
+	while (!g_confirmed)
+		pause();
+	g_confirmed = 0;
+}
+
+void	confirm_act(int signum)
+{
+	(void)signum;
+	g_confirmed = 1;
+}
+
+void	send_bit(int pid, char c)
+{
+	int	bit;
+	int	bit_value;
+
+	bit = 7;
+	while (bit >= 0)
+	{
+		bit_value = (c >> bit--) & 1;
+		if (bit_value)
+		{
+			if (kill(pid, SIGUSR1) < 0)
+			{
+				write(2, "Error sending bit\n", 18);
+				exit(1);
+			}
+		}
+		else
+		{
+			if (kill(pid, SIGUSR2) < 0)
+			{
+				write(2, "Error sending bit\n", 18);
+				exit(1);
+			}
+		}
+		wait_for_confirmation();
+	}
+}
+
+void	send_message(int pid, const char *message)
+{
+	char	c;
+
+	while (*message)
+	{
+		send_bit(pid, *message);
+		message++;
+	}
+	c = '\0';
+	send_bit(pid, c);
+}
+
 int	main(int argc, char **argv)
 {
-	struct sigaction	send;
-	struct sigaction	empty;
+	int					pid;
+	struct sigaction	sa;
 
 	if (argc != 3)
-		usage_error(argv);
-	send.sa_sigaction = send_act;
-	send.sa_flags = SA_SIGINFO;
-	if (sigaction(SIGUSR1, &send, NULL) < 0)
-		print_error("Fatal error: sigaction\n");
-	empty.sa_sigaction = empty_act;
-	empty.sa_flags = SA_SIGINFO;
-	if (sigaction(SIGUSR2, &empty, NULL) < 0)
-		print_error("Fatal error: sigation\n");
-	g_mes.counter = 7;
-	g_mes.data = argv[2];
-	g_mes.data[ft_strlen(g_mes.data)] = '\0';
-	if (kill(ft_atoi(argv[1], SIGUSR1) < 0)
-		print_error("Fatal error: kill\n");
-	while (1)
-		pause();
-	return (0);
-}
-
-void	usage_error(char **argv)
-{
-	int	i;
-
-	i = 1;
-	if (argv[i])
 	{
-		ft_putstr_td("./client: ", 1);
-		while (argv[i])
-		{
-			ft_putstr_fd("\'", 1);
-			ft_putstr_fd(argv[i], 1);
-			ft_putstr_fd("\' ", 1);
-			i++;
-		}
-		ft_putstr_fd("is not a ./clinet command.\n", 1);
-	}
-	print_error("usage ./client [server_pid] [value]\n ");
-}
-
-long int	ft_pow(long int x, unsigned int n)
-{
-	if (n == 0)
+		write(2, "Error Input: ./client [server_pid] [message]\n", 45);
 		return (1);
-	else if (n == 1)
-		return (x);
-	else if (n % 2 == 0)
-		return (ft_pow(x * x, n / 2));
-	else
-		return (ft_pow(x * x, n / 2) * 2));
-}
-
-void	one_act(int sig, siginfo_t * info, void *context)
-{
-	(void)sig;
-	(void)context;
-	if (g_mes.counter == 7)
-	{
-		if (kill(info->si_pid, SIGUSR1) < 0)
-			print_error("Fatal error start: kill\n");
-		return ;
 	}
-	g_mes.value += ft_pow(2, g_mes.counter);
-	if (g_mes.counter == 0)
-		print_char(g_mes.value);
-	else
-		g_mes.counter--;
-	kill(info->si_pid, SIGUSR1);
-}
-
-void	empty_act(int sig, siginfo_t *info, void *context)
-{
-	()
+	if (ft_atoi(argv[1]) < 1 || ft_atoi(argv[1]) > 4194304)
+	{
+		write(2, "Error: PID should be > 0 and < 4194305\n", 39);
+		return (1);
+	}
+	sa.sa_handler = &confirm_act;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	if (sigaction(SIGUSR1, &sa, NULL) == -1)
+	{
+		write(2, "Error setting up signal handler\n", 32);
+		exit(1);
+	}
+	pid = ft_atoi(argv[1]);
+	send_message(pid, argv[2]);
+	return (0);
 }
