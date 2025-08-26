@@ -3,60 +3,53 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: dpadenko <dpadenko@student.42.fr>          +#+  +:+       +#+         #
+#    By: dpadenko <dpadenko@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/21 10:45:38 by dpadenko          #+#    #+#              #
-#    Updated: 2024/02/21 14:04:10 by dpadenko         ###   ########.fr        #
+#    Updated: 2025/08/26 16:15:39 by dpadenko         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME_C=client
 NAME_S=server
-CC=cc
-FLAGS=-Werror -Wextra -Wall -g
+CC     := cc
+CFLAGS := -Wall -Wextra -Werror
 
-SRC_C= client.c
-SRC_S= server.c
+INCS := -I . \
+		-I lib/printf \
+		-I lib/printf/libft
 
-LIBDIR=./libft
-PRINTFDIR = ./printf
-LIBFT = ${LIBDIR}/libft.a
-PRINTF = ${PRINTFDIR}/libftprintf.a
+PRINTF_DIR := lib/printf
+PRINTF_A   := $(PRINTF_DIR)/libftprintf.a
 
-OBJ_C = ${SRC_C:.c=.o}
-OBJ_S = ${SRC_S:.c=.o}
+SRC_CLT= client.c
+SRC_SRV= server.c
 
-all: all_C all_S
+CLI_OBJS := $(SRC_CLT:.c=.o)
+SRV_OBJS := $(SRC_SRV:.c=.o)
 
-all_C: $(NAME_C)
-all_S: $(NAME_S)
+all: $(PRINTF_A) $(NAME_C) $(NAME_S)
 
 %.o: %.c
-		${CC} ${FLAGS} -o $@ -c $< -I . -I $(PRINTFDIR)
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-${NAME_C}: ${LIBFT} ${OBJ_C}
-		${CC} ${FLAGS} ${OBJ_C} -L${LIBDIR} -lft -o ${NAME_C}
+$(NAME_S): $(SRV_OBJS) $(PRINTF_A)
+	$(CC) $(CFLAGS) -o $@ $(SRV_OBJS) $(PRINTF_A)
 
-${NAME_S}: ${PRINTF} ${OBJ_S}
-		${CC} ${FLAGS} ${OBJ_S} -L${PRINTFDIR} -lftprintf -o ${NAME_S}
+$(NAME_C): $(CLI_OBJS) $(PRINTF_A)
+	$(CC) $(CFLAGS) -o $@ $(CLI_OBJS) $(PRINTF_A)
 
-${LIBFT}:
-		${MAKE} -C ${LIBDIR} all
-
-${PRINTF}:
-		${MAKE} -C ${PRINTFDIR} all
-
-.PHONY: clean fclean all re
+$(PRINTF_A):
+	@$(MAKE) -C $(PRINTF_DIR)
 
 clean:
-	${MAKE} -C ${LIBDIR} clean
-	${MAKE} -C ${PRINTFDIR} clean
-	rm -f ${OBJ_C} ${OBJ_S}
+	-$(MAKE) -C $(PRINTF_DIR) clean
+	rm -f $(SRV_OBJS) $(CLI_OBJS)
 
 fclean: clean
-	${MAKE} -C ${LIBDIR} fclean
-	${MAKE} -C ${PRINTFDIR} fclean
-	rm -rf ${NAME_C}
-	rm -rf ${NAME_S}
+	-$(MAKE) -C $(PRINTF_DIR) fclean
+	rm -f $(NAME_C) $(NAME_S)
 
 re: fclean all
+
+.PHONY: all clean fclean re

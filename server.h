@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dpadenko <dpadenko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dpadenko <dpadenko@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 17:02:29 by dpadenko          #+#    #+#             */
-/*   Updated: 2024/02/21 21:09:35 by dpadenko         ###   ########.fr       */
+/*   Updated: 2025/08/26 15:57:17 by dpadenko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
-# include "printf/ft_printf.h"
+# include "ft_printf.h"
 
 typedef struct s_msg
 {

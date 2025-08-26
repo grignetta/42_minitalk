@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dpadenko <dpadenko@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dpadenko <dpadenko@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 17:02:44 by dpadenko          #+#    #+#             */
-/*   Updated: 2024/02/21 21:07:32 by dpadenko         ###   ########.fr       */
+/*   Updated: 2025/08/26 15:57:23 by dpadenko         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
-# include "libft/libft.h"
+# include "libft.h"
 
 extern volatile sig_atomic_t	g_confirmed;
 
