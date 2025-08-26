@@ -16,8 +16,8 @@ CC     := cc
 CFLAGS := -Wall -Wextra -Werror
 
 INCS := -I . \
-		-I lib/printf \
-		-I lib/printf/libft
+	-I lib/printf \
+	-I lib/printf/libft
 
 PRINTF_DIR := lib/printf
 PRINTF_A   := $(PRINTF_DIR)/libftprintf.a
@@ -25,13 +25,23 @@ PRINTF_A   := $(PRINTF_DIR)/libftprintf.a
 SRC_CLT= client.c
 SRC_SRV= server.c
 
-CLI_OBJS := $(SRC_CLT:.c=.o)
-SRV_OBJS := $(SRC_SRV:.c=.o)
+OBJ_DIR := obj
+DEP_DIR := $(OBJ_DIR)
 
-all: $(PRINTF_A) $(NAME_C) $(NAME_S)
+CLI_OBJS := $(addprefix $(OBJ_DIR)/,$(SRC_CLT:.c=.o))
+SRV_OBJS := $(addprefix $(OBJ_DIR)/,$(SRC_SRV:.c=.o))
+CLI_DEPS := $(CLI_OBJS:.o=.d)
+SRV_DEPS := $(SRV_OBJS:.o=.d)
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+all: $(PRINTF_A) $(OBJ_DIR) $(NAME_C) $(NAME_S)
+
+$(OBJ_DIR):
+	mkdir -p $@
+
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(INCS) -MMD -MP -c $< -o $@
+
+-include $(CLI_DEPS) $(SRV_DEPS)
 
 $(NAME_S): $(SRV_OBJS) $(PRINTF_A)
 	$(CC) $(CFLAGS) -o $@ $(SRV_OBJS) $(PRINTF_A)
@@ -44,7 +54,7 @@ $(PRINTF_A):
 
 clean:
 	-$(MAKE) -C $(PRINTF_DIR) clean
-	rm -f $(SRV_OBJS) $(CLI_OBJS)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	-$(MAKE) -C $(PRINTF_DIR) fclean
