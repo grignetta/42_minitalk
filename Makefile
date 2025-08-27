@@ -41,7 +41,6 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
--include $(CLI_DEPS) $(SRV_DEPS)
 
 $(NAME_S): $(SRV_OBJS) $(PRINTF_A)
 	$(CC) $(CFLAGS) -o $@ $(SRV_OBJS) $(PRINTF_A)
@@ -63,3 +62,5 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+
+-include $(CLI_DEPS) $(SRV_DEPS)
